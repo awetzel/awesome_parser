@@ -18,7 +18,9 @@ defmodule AwesomeParser.Mixfile do
      compilers: Mix.compilers ++ [:npm],
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps]
+     deps: deps,
+     ## Change this configuration if you want another default version
+     default_font_awesome_version: "4.6.3"]
   end
 
   def application do

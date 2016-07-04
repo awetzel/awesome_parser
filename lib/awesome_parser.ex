@@ -6,12 +6,12 @@ defmodule AwesomeParser do
 end
 
 defmodule Mix.Tasks.FontCssToEntities do
-  @version "4.6.3"
-  @url "http://fontawesome.io/assets/font-awesome-#{@version}.zip"
-  def run([]) do
+  def run(args) do
     Mix.Task.run "app.start", []
-    {:ok,{{_,200,_},_,body}} = :httpc.request(:get,{'#{@url}',[]},[],body_format: :binary)
-    {:ok,[{_,css}]} = :zip.extract(body,[:memory,file_list: ['font-awesome-#{@version}/css/font-awesome.css']])
+    version = List.first(args) || Mix.Project.config[:default_font_awesome_version]
+    url = "http://fontawesome.io/assets/font-awesome-#{version}.zip"
+    {:ok,{{_,200,_},_,body}} = :httpc.request(:get,{'#{url}',[]},[],body_format: :binary)
+    {:ok,[{_,css}]} = :zip.extract(body,[:memory,file_list: ['font-awesome-#{version}/css/font-awesome.css']])
     css_ast = AwesomeParser.parse(css)
     for %{type: "rule", selectors: [".fa-"<>name], declarations: [%{property: "content",value: value}]}<-css_ast.stylesheet.rules do
       [name,"before"] = String.split(name,":")
