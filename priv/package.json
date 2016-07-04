@@ -1,0 +1,4 @@
+{
+  "main": "index.js",
+  "dependencies": {"css": "^2.2.1","node_erlastic": "0.0.8"}
+}
