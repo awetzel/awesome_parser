@@ -7,12 +7,14 @@ end
 
 defmodule FontAwesome do
   def css(version) do
+    Mix.shell.info ~s(will download "http://fontawesome.io/assets/font-awesome-#{version}.zip")
     {:ok,{{_,200,_},_,body}} = :httpc.request(:get,{'http://fontawesome.io/assets/font-awesome-#{version}.zip',[]},[],body_format: :binary)
     {:ok,[{_,css}]} = :zip.extract(body,[:memory,file_list: ['font-awesome-#{version}/css/font-awesome.css']])
+    File.write!("aw.css",css)
     css
   end
   def icon_decimals(css_ast) do
-    for %{type: "rule", selectors: [".fa-"<>name], declarations: [%{property: "content",value: value}]}<-css_ast.stylesheet.rules do
+    for %{type: "rule", selectors: [".fa-"<>_|_]=sels, declarations: [%{property: "content",value: value}]}<-css_ast.stylesheet.rules, ".fa-"<>name <- sels do
       [name,"before"] = String.split(name,":")
       hex_value = value |> String.strip(?") |> String.lstrip(?\\)
       <<value::2*8>> = Base.decode16!(hex_value, case: :lower)
@@ -24,7 +26,6 @@ end
 defmodule Mix.Tasks.FontCssToEntities do
   @html """
   <html><head>
-    <script src="https://use.fontawesome.com/1f57746ba7.js"></script>
     <style>
     body { background-color: 292929; padding: 30px}
     h1 { width: 700px; margin: auto; margin-bottom: 50px; position: relative; color: #c9d0d4; font-family: 'Helvetica Neue', sans-serif; font-size: 46px; font-weight: 100; line-height: 50px; letter-spacing: 1px; padding: 0 0 30px; border-bottom: double #555; }
@@ -33,6 +34,7 @@ defmodule Mix.Tasks.FontCssToEntities do
     table,tr { border-collapse: collapse; border: solid 1px #555 }
     td { padding: 10px }
     </style>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/<%= version %>/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
   </head><body>
     <h1>Awesome Font HTML entities <div class="version"><%= version %></div></h1>
     <table>
